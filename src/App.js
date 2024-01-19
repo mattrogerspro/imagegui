@@ -351,7 +351,7 @@ function App() {
                 {cubeFaces.map((face, index) => (
                     <div key={index}>
                         {/* <a href="#" onClick={() => handleThumbnailClick(face)}> */}
-                            <img src={face} alt={`Cube Face ${index}`} width={256} height={256} />
+                            <img src={face} alt={`Cube Face ${index}`} width={128} height={128} />
                         {/* </a> */}
                     </div>
                 ))}
