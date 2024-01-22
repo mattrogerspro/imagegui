@@ -3,7 +3,8 @@ import { Canvas, useThree, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
+
 
 // function CubeMapScene({ faces }) {
 //     console.log(faces)
@@ -172,7 +173,7 @@ async function uploadFaceToServer(faceDataURL, faceIndex, setHtmlLink) {
     console.log(API_URL)
 
     const isLocalhost = window.location.hostname === "localhost";
-    const endpoint = isLocalhost ? 'http://localhost:5001/upload' : 'https://imgproc-server.skynav.app/upload';
+    const endpoint = isLocalhost ? 'http://localhost:5001/upload' : 'https://image-servervr.azurewebsites.net/upload';
 
     const response = await fetch(endpoint, {
         method: 'POST',
@@ -246,6 +247,37 @@ function Cubemap({ setCubeFaces, imageSrc, watermarkText, quality, cubeSize, sho
 }
 
 
+async function uploadToAzure(file, filename) {
+    const formData = new FormData();
+    formData.append('file', file, filename);
+
+    const endpoint = process.env.REACT_APP_AZURE_ENDPOINT; // Replace with your environment variable for the Azure endpoint
+    console.log(endpoint)
+    
+    // Check if the application is running on localhost
+    const isLocalhost = window.location.hostname === "localhost";
+    const azureEndpoint = isLocalhost ? 'http://localhost:5001/upload-original' : 'https://image-servervr.azurewebsites.net/upload-original';
+
+    try {
+        const response = await fetch(azureEndpoint, {
+            method: 'POST',
+            body: formData
+            // Note: 'Content-Type' header is automatically set by the browser when using FormData
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('File uploaded successfully:', result);
+        return result;
+    } catch (error) {
+        console.error('Error uploading file to Azure:', error);
+        return null;
+    }
+}
+
 
 
 
@@ -264,10 +296,18 @@ function App() {
 
     const onUpload = (event) => {
         const file = event.target.files[0];
+        const filename = file.name;
         const reader = new FileReader();
 
-        reader.onload = function(e) {
+        reader.onload = async function(e) {
             setImageSrc(e.target.result);
+            // Upload the original file to Azure after it's read
+            try {
+                await uploadToAzure(file, filename);
+                console.log('File uploaded successfully to Azure Blob Storage.');
+            } catch (error) {
+                console.error('Error uploading file to Azure:', error);
+            }
         }
 
         reader.readAsDataURL(file);

@@ -1,6 +1,6 @@
 {
-  "name": "imageprocessingapp",
-  "version": "1.0.0",
+  "name": "imageprocessinggui",
+  "version": "1.0.1",
   "private": true,
   "engines": {
     "node": "18.19.0",
@@ -18,7 +18,7 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "serve": "^14.2.1",
-    "three": "^0.157.0",
+    "three": "^0.160.0",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
